@@ -32,9 +32,11 @@ jobs:
       - name: Copy static files
         run: |
           mkdir -p _site
-          cp -r Revhub/* _site/
-          # Ensure .nojekyll is present
+          cp -r Revhub/* _site/ || cp -r Revhub/. _site/
+          # Ensure .nojekyll is present to disable Jekyll
           touch _site/.nojekyll
+          # List files to verify
+          ls -la _site/ | head -20
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
