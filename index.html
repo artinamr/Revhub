@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hexaloop: V9.0</title>
+    <title>Hexaloop: V10.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -12,14 +12,16 @@
         :root {
             --bg-color: #020617;
             --accent-color: #4f46e5;
-            --glass-bg: rgba(15, 23, 42, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            /* refined glass variables for better readability */
+            --glass-bg: rgba(10, 15, 30, 0.85); 
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --sidebar-w: 360px;
             --blob-opacity: 0.25;
-            --canvas-bg: rgba(10, 15, 30, 0.5);
-            --hud-bg: rgba(0,0,0,0.7);
+            --canvas-bg: rgba(5, 10, 20, 0.6);
+            --hud-bg: rgba(0,0,0,0.75);
         }
 
         [data-theme="light"] {
@@ -27,6 +29,7 @@
             --accent-color: #0ea5e9;
             --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-highlight: rgba(255, 255, 255, 0.4);
             --text-main: #0f172a;
             --text-muted: #475569;
             --blob-opacity: 0.15;
@@ -70,10 +73,10 @@
         /* --- GLASS UI --- */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(20px); /* Strong blur for readability */
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4), inset 0 0 0 1px var(--glass-highlight);
             transition: background 0.6s, border-color 0.6s;
         }
 
@@ -93,6 +96,12 @@
             overflow: hidden; 
         }
         #sidebar.collapsed { transform: translateX(-100%); }
+
+        /* Mobile Responsive Sidebar */
+        @media (max-width: 640px) {
+            :root { --sidebar-w: 100%; } /* Full width on mobile */
+            #sidebar { width: 100%; border-right: none; }
+        }
 
         .sidebar-header { padding: 2rem 2rem 1rem 2rem; flex-shrink: 0; }
         .sidebar-content {
@@ -116,9 +125,9 @@
             top: 1.5rem;
             left: 1.5rem;
             z-index: 110;
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 48px; /* Larger touch target */
+            height: 48px;
+            border-radius: 14px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
@@ -128,18 +137,18 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         #sidebar-toggle:hover { transform: scale(1.05); }
         #sidebar:not(.collapsed) + #sidebar-toggle { opacity: 0; pointer-events: none; transform: translateX(-20px); }
 
         .icon-btn {
-            padding: 0.5rem;
+            padding: 0.75rem; /* Larger touch target */
             cursor: pointer;
-            opacity: 0.7;
+            opacity: 0.8;
             transition: all 0.2s;
             background: rgba(125, 125, 125, 0.1);
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid transparent;
             color: var(--text-main);
         }
@@ -156,9 +165,9 @@
         }
 
         .mode-btn {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 800;
-            padding: 0.75rem;
+            padding: 1rem;
             letter-spacing: 0.05em;
             border: 1px solid transparent;
             border-radius: 0.75rem;
@@ -194,11 +203,13 @@
             background: var(--canvas-bg); 
             backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.4);
             transition: background 0.6s;
+            max-width: 100%;
+            max-height: 100%;
         }
 
-        /* --- SLIDERS (IMPROVED) --- */
+        /* --- SLIDERS --- */
         .slider-wrapper {
             position: relative;
             width: 100%;
@@ -331,8 +342,8 @@
         .diff-thumb {
             position: absolute;
             top: 50%;
-            width: 16px;
-            height: 16px;
+            width: 20px; /* Larger thumb */
+            height: 20px;
             background: var(--text-main);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -344,10 +355,10 @@
         .diff-labels {
             display: flex;
             justify-content: space-between;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: var(--text-muted);
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
             text-transform: uppercase;
         }
 
@@ -361,9 +372,10 @@
             gap: 1rem;
             pointer-events: none;
             transition: bottom 0.3s;
+            z-index: 20;
         }
         body.coaching-active .hud {
-            bottom: 10rem; 
+            bottom: 12rem; 
         }
 
         .hud-pill {
@@ -423,9 +435,7 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-        .coach-content {
-            flex-grow: 1;
-        }
+        .coach-content { flex-grow: 1; }
         .coach-content h3 {
             font-size: 0.75rem;
             font-weight: 800;
@@ -484,6 +494,7 @@
             background: #022c22;
             z-index: 300;
             display: flex;
+            flex-direction: column; /* Stack text vertically */
             align-items: center;
             justify-content: center;
             pointer-events: none;
@@ -500,9 +511,27 @@
             transform: scale(0.5);
             opacity: 0;
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            line-height: 1;
         }
+        .frog-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            color: #86efac;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s; /* Delayed */
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        
         #frog-intro.active .frog-title {
             transform: scale(1);
+            opacity: 1;
+        }
+        #frog-intro.active .frog-subtitle {
+            transform: translateY(0);
             opacity: 1;
         }
 
@@ -510,7 +539,7 @@
         #modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(20px);
             z-index: 200;
             display: flex;
@@ -594,6 +623,7 @@
     <!-- Frog Intro -->
     <div id="frog-intro">
         <h1 class="frog-title">FROG MODE</h1>
+        <p class="frog-subtitle">Inspired by Ms. Todd-Lister</p>
     </div>
 
     <!-- Sidebar Menu (Fixed Layout) -->
@@ -709,7 +739,7 @@
             </div>
             <button id="startBtn" class="action-btn">Initialize</button>
             <p class="text-[10px] text-center mt-4 font-mono opacity-60" style="color: var(--text-muted);">
-                HEXALOOP V9.0 <span class="ml-2 opacity-50">| ARTIN</span>
+                HEXALOOP V10.0 <span class="ml-2 opacity-50">| ARTIN</span>
             </p>
         </div>
     </aside>
@@ -789,10 +819,11 @@
 
 <script>
 /**
- * HEXALOOP: ULTIMATE V9.0 "Amphibian Update"
- * - Frog Limited Mode
+ * HEXALOOP: ULTIMATE V10.0 "Todd-Lister Update"
+ * - Frog Limited Mode (Styled)
  * - Full Body Frog Animation
  * - Swamp Theme & Fish System
+ * - Optimized Mobile View & Liquid Glass
  */
 
 const canvas = document.getElementById('gameCanvas');
@@ -927,9 +958,8 @@ function init() {
     // Init Fish
     for(let i=0; i<5; i++) spawnFish();
 
-    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        toggleTheme(true);
-    }
+    // Force Dark Mode on Init
+    toggleTheme(false);
 
     buildUI();
     resize();
@@ -1049,7 +1079,7 @@ function setMode(mode) {
     } else if (mode === 'FROG') {
         // Frog Mode special reset
         frogIntro.classList.add('active');
-        setTimeout(() => frogIntro.classList.remove('active'), 2500);
+        setTimeout(() => frogIntro.classList.remove('active'), 3500); // Longer for subtitle
         // Force assets
         currentChar = CHARACTERS[0]; // Frog
         currentTheme = THEMES[0]; // Swamp
