@@ -7,12 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Mountains+of+Christmas:wght@700&display=swap');
 
         :root {
             --bg-color: #020617;
             --accent-color: #4f46e5;
-            /* refined glass variables for better readability */
             --glass-bg: rgba(10, 15, 30, 0.85); 
             --glass-border: rgba(255, 255, 255, 0.12);
             --glass-highlight: rgba(255, 255, 255, 0.05);
@@ -73,11 +72,21 @@
         /* --- GLASS UI --- */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px); /* Strong blur for readability */
+            backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4), inset 0 0 0 1px var(--glass-highlight);
             transition: background 0.6s, border-color 0.6s;
+        }
+
+        /* --- TOP RIGHT SPECIAL ACCESS --- */
+        #special-access {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 150;
+            display: flex;
+            gap: 0.75rem;
         }
 
         /* --- SIDEBAR --- */
@@ -97,20 +106,67 @@
         }
         #sidebar.collapsed { transform: translateX(-100%); }
 
-        /* Mobile Responsive Sidebar */
         @media (max-width: 640px) {
-            :root { --sidebar-w: 100%; } /* Full width on mobile */
+            :root { --sidebar-w: 100%; } 
             #sidebar { width: 100%; border-right: none; }
         }
 
         .sidebar-header { padding: 2rem 2rem 1rem 2rem; flex-shrink: 0; }
+        
+        /* Rainbow Hover for Title */
+        .title-loop {
+            transition: color 0.3s;
+            cursor: default;
+        }
+        .title-loop:hover {
+            animation: rainbow 1.5s linear infinite;
+        }
+        @keyframes rainbow {
+            0% { color: #ef4444; }
+            15% { color: #f97316; }
+            30% { color: #eab308; }
+            45% { color: #22c55e; }
+            60% { color: #3b82f6; }
+            75% { color: #a855f7; }
+            100% { color: #ef4444; }
+        }
+
         .sidebar-content {
             flex-grow: 1;
             overflow-y: auto;
             padding: 0 2rem;
             scrollbar-width: none; 
+            position: relative;
         }
         .sidebar-content::-webkit-scrollbar { display: none; }
+        
+        /* Scroll Hint Indicator */
+        .scroll-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            animation: bounce 2s infinite;
+            z-index: 20;
+        }
+        .scroll-hint.fade-out { opacity: 0; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-5px);}
+            60% {transform: translateY(-3px);}
+        }
+
         .sidebar-footer {
             padding: 1.5rem 2rem 2.5rem 2rem;
             flex-shrink: 0;
@@ -125,7 +181,7 @@
             top: 1.5rem;
             left: 1.5rem;
             z-index: 110;
-            width: 48px; /* Larger touch target */
+            width: 48px; 
             height: 48px;
             border-radius: 14px;
             background: var(--glass-bg);
@@ -143,7 +199,7 @@
         #sidebar:not(.collapsed) + #sidebar-toggle { opacity: 0; pointer-events: none; transform: translateX(-20px); }
 
         .icon-btn {
-            padding: 0.75rem; /* Larger touch target */
+            padding: 0.75rem;
             cursor: pointer;
             opacity: 0.8;
             transition: all 0.2s;
@@ -162,6 +218,38 @@
         .frog-btn:hover {
             background: rgba(74, 222, 128, 0.2);
             box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
+        .xmas-btn {
+            width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            color: #f43f5e;
+            border: 1px solid rgba(244, 63, 94, 0.5);
+            background: rgba(244, 63, 94, 0.15);
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
+            transition: all 0.3s;
+        }
+        .xmas-btn:hover {
+            background: rgba(244, 63, 94, 0.3);
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.5);
+            transform: scale(1.1);
+        }
+        .xmas-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.8), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-150%) rotate(45deg); }
+            20% { transform: translateX(150%) rotate(45deg); }
+            100% { transform: translateX(150%) rotate(45deg); }
         }
 
         .mode-btn {
@@ -450,7 +538,7 @@
             color: var(--text-main);
         }
         
-        /* Floating Skip Button (Bottom Right) */
+        /* Floating Skip Button */
         #skipBtnContainer {
             position: fixed;
             bottom: 2rem;
@@ -487,53 +575,53 @@
             transform: translateY(20px);
         }
 
-        /* --- FROG INTRO OVERLAY --- */
-        #frog-intro {
+        /* --- MODE INTRO OVERLAY --- */
+        #mode-intro {
             position: fixed;
             inset: 0;
-            background: #022c22;
             z-index: 300;
             display: flex;
-            flex-direction: column; /* Stack text vertically */
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s;
+            background: #000;
         }
-        #frog-intro.active { opacity: 1; pointer-events: auto; }
+        #mode-intro.active { opacity: 1; pointer-events: auto; }
         
-        .frog-title {
+        .intro-title {
             font-family: 'Fredoka One', cursive;
             font-size: 6rem;
-            color: #4ade80;
-            text-shadow: 0 10px 0 #166534, 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            line-height: 1;
             transform: scale(0.5);
             opacity: 0;
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            text-align: center;
-            line-height: 1;
         }
-        .frog-subtitle {
+        .intro-subtitle {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.25rem;
-            color: #86efac;
+            font-size: 1.5rem;
             margin-top: 1rem;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s; /* Delayed */
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
             font-weight: 700;
             letter-spacing: 0.05em;
         }
         
-        #frog-intro.active .frog-title {
-            transform: scale(1);
-            opacity: 1;
-        }
-        #frog-intro.active .frog-subtitle {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        #mode-intro.active .intro-title { transform: scale(1); opacity: 1; }
+        #mode-intro.active .intro-subtitle { transform: translateY(0); opacity: 1; }
+
+        /* Special Themes for Intro */
+        .frog-theme-intro { background: #022c22 !important; }
+        .frog-theme-intro .intro-title { color: #4ade80; text-shadow: 0 10px 0 #166534; }
+        .frog-theme-intro .intro-subtitle { color: #86efac; }
+
+        .xmas-theme-intro { background: #7f1d1d !important; }
+        .xmas-theme-intro .intro-title { font-family: 'Mountains of Christmas', serif; color: #fff; text-shadow: 0 0 20px #ef4444; }
+        .xmas-theme-intro .intro-subtitle { color: #fca5a5; }
 
         /* --- MODAL --- */
         #modal {
@@ -583,6 +671,7 @@
         .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; display: block; margin-bottom: 0.25rem; }
         .stat-val { font-size: 1.25rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-main); }
 
+        /* Flux & IQ Bars */
         .flux-wall-indicator {
             height: 4px;
             background: rgba(255,255,255,0.1);
@@ -597,6 +686,19 @@
             width: 0%;
             transition: width 0.3s;
         }
+        .iq-progress-container {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin: 0.5rem 0 2rem 0;
+            overflow: hidden;
+        }
+        .iq-progress-bar {
+            height: 100%;
+            background: #fbbf24;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
 
         .deluxe-glitch {
             animation: glitch 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
@@ -610,6 +712,13 @@
             80% { transform: translate(2px, -2px) }
             100% { transform: translate(0) }
         }
+        .disclaimer {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
 
     </style>
 </head>
@@ -620,10 +729,20 @@
         <div class="blob blob-2"></div>
     </div>
 
-    <!-- Frog Intro -->
-    <div id="frog-intro">
-        <h1 class="frog-title">FROG MODE</h1>
-        <p class="frog-subtitle">Inspired by Ms. Todd-Lister</p>
+    <!-- Mode Intro Overlay -->
+    <div id="mode-intro">
+        <h1 class="intro-title" id="intro-title-text">MODE</h1>
+        <p class="intro-subtitle" id="intro-sub-text">Subtitle</p>
+    </div>
+
+    <!-- Top Right Controls (Santa Edition) -->
+    <div id="special-access">
+        <button id="xmasBtn" class="icon-btn xmas-btn" title="Santa Limited Edition">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 22h20L12 2z"/>
+                <path d="M12 6l-4 8h8l-4-8z" fill="currentColor" opacity="0.3"/>
+            </svg>
+        </button>
     </div>
 
     <!-- Sidebar Menu (Fixed Layout) -->
@@ -632,9 +751,9 @@
         <!-- Header -->
         <div class="sidebar-header">
             <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-black tracking-tighter" style="color: var(--text-main);">HEXA<span class="text-indigo-500">LOOP</span></h1>
+                <h1 class="text-3xl font-black tracking-tighter title-loop" style="color: var(--text-main);">HEXA<span class="text-indigo-500">LOOP</span></h1>
                 <div class="flex gap-2">
-                    <!-- Frog Mode Button -->
+                    <!-- Frog Mode Button (Kept in Menu) -->
                     <button id="frogBtn" class="icon-btn frog-btn" title="Frog Mode">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
@@ -672,7 +791,7 @@
         </div>
 
         <!-- Scrollable Content -->
-        <div class="sidebar-content">
+        <div class="sidebar-content" id="sidebarContent">
             <!-- Mode Select -->
             <p class="text-xs font-bold mb-2 uppercase tracking-widest" style="color: var(--text-muted);">Protocol</p>
             <div class="mb-8 p-1 rounded-xl grid grid-cols-2 gap-2">
@@ -730,6 +849,12 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Scroll Hint -->
+            <div id="scrollHint" class="scroll-hint">
+                <span>Scroll For More</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
         </div>
 
         <!-- Fixed Footer -->
@@ -739,7 +864,7 @@
             </div>
             <button id="startBtn" class="action-btn">Initialize</button>
             <p class="text-[10px] text-center mt-4 font-mono opacity-60" style="color: var(--text-muted);">
-                HEXALOOP V10.0 <span class="ml-2 opacity-50">| ARTIN</span>
+                HEXALOOP V13.0 <span class="ml-2 opacity-50">| ARTIN</span>
             </p>
         </div>
     </aside>
@@ -807,23 +932,36 @@
             <p id="modalMsg" class="mb-6 text-sm font-medium" style="color: var(--text-muted);">Target contained.</p>
             
             <!-- Dynamic Stats Area -->
-            <div id="modalStats" class="stats-grid hidden">
-                <!-- Populated by JS -->
+            <div id="modalStats" class="stats-grid hidden"></div>
+            
+            <!-- IQ Progress -->
+            <div id="iqProgress" class="hidden">
+                <div class="flex justify-between text-[10px] font-bold text-amber-400 mb-1">
+                    <span>TEST PROGRESS</span>
+                    <span id="iqRoundVal">1/5</span>
+                </div>
+                <div class="iq-progress-container">
+                    <div id="iqProgressBar" class="iq-progress-bar"></div>
+                </div>
             </div>
             
             <button id="restartBtn" class="action-btn">
                 Next Run
             </button>
+            
+            <div id="modalDisclaimer" class="disclaimer hidden">
+                * IQ Score is a simulated game statistic based on pathfinding efficiency and spatial reasoning speed. It is not a clinical assessment of intelligence.
+            </div>
         </div>
     </div>
 
 <script>
 /**
- * HEXALOOP: ULTIMATE V10.0 "Todd-Lister Update"
- * - Frog Limited Mode (Styled)
- * - Full Body Frog Animation
- * - Swamp Theme & Fish System
- * - Optimized Mobile View & Liquid Glass
+ * HEXALOOP: ULTIMATE V13.0 "Holiday Special"
+ * - Santa Mode with Snow & Particles
+ * - Moved Santa Button to Top Right
+ * - RGB Title
+ * - Ice Walls
  */
 
 const canvas = document.getElementById('gameCanvas');
@@ -832,8 +970,11 @@ const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
 // UI Refs
 const sidebar = document.getElementById('sidebar');
+const sidebarContent = document.getElementById('sidebarContent');
+const scrollHint = document.getElementById('scrollHint');
 const themeBtn = document.getElementById('themeBtn');
-const frogBtn = document.getElementById('frogBtn'); // New Frog Button
+const frogBtn = document.getElementById('frogBtn');
+const xmasBtn = document.getElementById('xmasBtn');
 const moonIcon = document.getElementById('moonIcon');
 const sunIcon = document.getElementById('sunIcon');
 const charGrid = document.getElementById('char-grid');
@@ -854,7 +995,9 @@ const diffRange = document.getElementById('diff-range');
 const diffFill = document.getElementById('diff-fill');
 const diffThumb = document.getElementById('diff-thumb');
 const diffText = document.getElementById('diff-val-text');
-const frogIntro = document.getElementById('frog-intro');
+const modeIntro = document.getElementById('mode-intro');
+const introTitle = document.getElementById('intro-title-text');
+const introSub = document.getElementById('intro-sub-text');
 
 // Modal Refs
 const modal = document.getElementById('modal');
@@ -864,6 +1007,10 @@ const modalIcon = document.getElementById('modalIcon');
 const modalIconBg = document.getElementById('modalIconBg');
 const modalStats = document.getElementById('modalStats');
 const restartBtn = document.getElementById('restartBtn');
+const iqProgress = document.getElementById('iqProgress');
+const iqProgressBar = document.getElementById('iqProgressBar');
+const iqRoundVal = document.getElementById('iqRoundVal');
+const modalDisclaimer = document.getElementById('modalDisclaimer');
 
 // Mode Buttons
 const modeBtns = {
@@ -875,12 +1022,14 @@ const modeBtns = {
 };
 
 // --- CONFIG DATA ---
+// hidden: true ensures they don't appear in the general slider
 const CHARACTERS = [
-    { name: 'Frog', color: '#4ade80', type: 'frog', glow: '#86efac' }, // NEW
+    { name: 'Santa', color: '#ef4444', type: 'santa', glow: '#fecaca', hidden: true }, // NEW
+    { name: 'Frog', color: '#4ade80', type: 'frog', glow: '#86efac', hidden: true }, 
     { name: 'Neko', color: '#fb7185', type: 'cat', glow: '#fda4af' }, 
     { name: 'Neon', color: '#f43f5e', type: 'sphere', glow: '#fb7185' },
     { name: 'Runner', color: '#e2e8f0', type: 'human', glow: '#ffffff' }, 
-    { name: 'Mentor', color: '#fbbf24', type: 'ring', glow: '#fcd34d' },
+    { name: 'Mentor', color: '#fbbf24', type: 'ring', glow: '#fcd34d', hidden: true },
     { name: 'Cyber', color: '#0ea5e9', type: 'cube', glow: '#38bdf8' },
     { name: 'Bio', color: '#22c55e', type: 'tri', glow: '#4ade80' },
     { name: 'Void', color: '#a855f7', type: 'void', glow: '#c084fc' },
@@ -895,7 +1044,8 @@ const CHARACTERS = [
 ];
 
 const THEMES = [
-    { name: 'Swamp', bg: '#064e3b', wall: '#10b981', grid: 'rgba(16, 185, 129, 0.2)' }, // NEW
+    { name: 'North Pole', bg: '#1e3a8a', wall: '#38bdf8', grid: 'rgba(224, 242, 254, 0.3)', hidden: true }, // NEW
+    { name: 'Swamp', bg: '#064e3b', wall: '#10b981', grid: 'rgba(16, 185, 129, 0.2)', hidden: true }, 
     { name: 'Midnight', bg: '#020617', wall: '#3b82f6', grid: 'rgba(59, 130, 246, 0.15)' },
     { name: 'Amber', bg: '#271a0c', wall: '#f59e0b', grid: 'rgba(245, 158, 11, 0.15)' },
     { name: 'Matrix', bg: '#022c22', wall: '#10b981', grid: 'rgba(16, 185, 129, 0.15)' },
@@ -921,20 +1071,22 @@ let grid = [];
 let target = { q: 5, r: 5, x: 0, y: 0, angle: 0 };
 let animations = [];
 let particles = [];
-let fish = []; // New Fish Array
+let fish = []; 
+let snow = []; // Snow system
 let mouse = { q: -1, r: -1 };
 let view = { w: 0, h: 0, cx: 0, cy: 0 };
 let hexRadius = 25;
 
 // Game Logic Variables
-let currentChar = CHARACTERS[1]; // Default to Neko
-let currentTheme = THEMES[1]; // Default to Midnight
+let currentChar = CHARACTERS[3]; // Default Neon
+let currentTheme = THEMES[2]; // Default Midnight
 let currentMode = 'NORMAL'; 
 let isGameOver = false;
 let moves = 0;
 let lastMoveTime = 0;
 let isLightMode = false;
 let difficulty = 50;
+let inputLocked = false; 
 
 // FLUX & DELUXE
 let fluxLimit = 6; 
@@ -955,8 +1107,9 @@ let skipUsed = false;
 function init() {
     grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
     
-    // Init Fish
+    // Init Background Elements
     for(let i=0; i<5; i++) spawnFish();
+    for(let i=0; i<50; i++) spawnSnow();
 
     // Force Dark Mode on Init
     toggleTheme(false);
@@ -968,6 +1121,15 @@ function init() {
 
     window.addEventListener('resize', resize);
     
+    // Scroll Hint Logic
+    sidebarContent.addEventListener('scroll', () => {
+        if(sidebarContent.scrollTop > 20) {
+            scrollHint.classList.add('fade-out');
+        } else {
+            scrollHint.classList.remove('fade-out');
+        }
+    });
+
     // Sidebar Controls
     document.getElementById('sidebar-toggle').onclick = () => sidebar.classList.remove('collapsed');
     document.getElementById('sidebar-close').onclick = () => sidebar.classList.add('collapsed');
@@ -975,11 +1137,9 @@ function init() {
     restartBtn.onclick = handleModalClick;
     themeBtn.onclick = () => toggleTheme(!isLightMode);
     
-    // Frog Mode Trigger
-    frogBtn.onclick = () => {
-        sidebar.classList.add('collapsed');
-        setMode('FROG');
-    };
+    // Special Modes
+    frogBtn.onclick = () => { sidebar.classList.add('collapsed'); setMode('FROG'); };
+    xmasBtn.onclick = () => { sidebar.classList.add('collapsed'); setMode('XMAS'); };
 
     // Difficulty Slider
     diffRange.addEventListener('input', (e) => {
@@ -1041,7 +1201,6 @@ function init() {
     setMode('NORMAL');
 }
 
-// Global Scoper for onclick
 window.scrollSlider = function(id, dir) {
     const el = document.getElementById(id);
     if(el) el.scrollBy({ left: dir * 120, behavior: 'smooth' });
@@ -1058,16 +1217,15 @@ function toggleTheme(light) {
         document.documentElement.setAttribute('data-theme', 'dark');
         moonIcon.classList.add('hidden');
         sunIcon.classList.remove('hidden');
-        if(currentTheme.name === 'Graphite') currentTheme = THEMES[1];
+        if(currentTheme.name === 'Graphite') currentTheme = THEMES.find(t => t.name === 'Midnight');
     }
-    buildUI();
+    buildUI(); // Rebuild to update theme selection visual state
 }
 
 function setMode(mode) {
     currentMode = mode;
     Object.values(modeBtns).forEach(b => b.classList.remove('active-mode'));
     
-    // Default UI reset
     diffPanel.classList.remove('active');
     statusPill.classList.remove('hidden');
     
@@ -1077,18 +1235,23 @@ function setMode(mode) {
         modeDesc.innerText = "Standard protocol. Adjust complexity via slider.";
         modeDesc.style.borderColor = "#94a3b8";
     } else if (mode === 'FROG') {
-        // Frog Mode special reset
-        frogIntro.classList.add('active');
-        setTimeout(() => frogIntro.classList.remove('active'), 3500); // Longer for subtitle
-        // Force assets
-        currentChar = CHARACTERS[0]; // Frog
-        currentTheme = THEMES[0]; // Swamp
+        playIntro("FROG MODE", "Inspired by Ms. Todd-Lister", "frog-theme-intro");
+        currentChar = CHARACTERS.find(c => c.name === 'Frog');
+        currentTheme = THEMES.find(t => t.name === 'Swamp');
+        document.body.style.backgroundColor = currentTheme.bg;
+        resetGame();
+    } else if (mode === 'XMAS') {
+        playIntro("HO HO HO", "Limited Time Edition", "xmas-theme-intro");
+        currentChar = CHARACTERS.find(c => c.name === 'Santa');
+        currentTheme = THEMES.find(t => t.name === 'North Pole');
         document.body.style.backgroundColor = currentTheme.bg;
         resetGame();
     } else {
         if (mode === 'IQ') {
+            iqRound = 1;
+            iqData = { wins: 0, totalMoves: 0, optimalMovesMissed: 0, decisionTimeAccumulator: 0 };
             modeBtns.iq.classList.add('active-mode');
-            modeDesc.innerText = "5-Round Analysis. Tracks speed & logic.";
+            modeDesc.innerText = "5-Round Analysis. Tracks speed & logic efficiency.";
             modeDesc.style.borderColor = "#f59e0b";
         } else if (mode === 'FLUX') {
             modeBtns.flux.classList.add('active-mode');
@@ -1104,6 +1267,14 @@ function setMode(mode) {
             modeDesc.style.borderColor = "#fbbf24";
         }
     }
+}
+
+function playIntro(title, sub, cssClass) {
+    modeIntro.className = cssClass;
+    introTitle.innerText = title;
+    introSub.innerText = sub;
+    modeIntro.classList.add('active');
+    setTimeout(() => modeIntro.classList.remove('active'), 3000);
 }
 
 function calculateFluxLimit(gridState) {
@@ -1125,6 +1296,15 @@ function spawnFish() {
     });
 }
 
+function spawnSnow() {
+    snow.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vy: 1 + Math.random() * 2,
+        size: 1 + Math.random() * 3
+    });
+}
+
 function resetGame() {
     grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
     target = { q: 5, r: 5 };
@@ -1134,10 +1314,14 @@ function resetGame() {
     playerWalls = []; 
     moveEl.innerText = '0';
     lastMoveTime = Date.now();
+    inputLocked = false;
 
     fluxPill.classList.add('hidden');
     coachPanel.classList.remove('active');
     skipBtn.classList.add('hidden'); 
+    iqProgress.classList.add('hidden');
+    modalDisclaimer.classList.add('hidden');
+    
     document.body.classList.remove('coaching-active');
     statusPill.className = "hud-pill text-emerald-400 border-emerald-500/30 text-sm tracking-wider";
     statusPill.innerText = "ACTIVE";
@@ -1146,6 +1330,11 @@ function resetGame() {
     if (currentMode === 'FROG') {
         statusPill.innerText = "FROG MODE";
         statusPill.className = "hud-pill text-green-400 border-green-500/30 text-sm tracking-wider";
+        generateRandomMap(12);
+    }
+    else if (currentMode === 'XMAS') {
+        statusPill.innerText = "HOLIDAY EVENT";
+        statusPill.className = "hud-pill text-red-400 border-red-500/30 text-sm tracking-wider";
         generateRandomMap(12);
     }
     else if (currentMode === 'COACH') {
@@ -1165,9 +1354,14 @@ function resetGame() {
         }
     }
     else if (currentMode === 'IQ') {
-        if (iqRound === 1) iqData = { wins: 0, totalMoves: 0, optimalMovesMissed: 0, decisionTimeAccumulator: 0 };
+        if (iqRound === 1 && iqData.totalMoves > 0) {
+             iqData = { wins: 0, totalMoves: 0, optimalMovesMissed: 0, decisionTimeAccumulator: 0 };
+        }
         statusPill.innerText = `IQ ROUND ${iqRound}/${IQ_MAX_ROUNDS}`;
         statusPill.className = "hud-pill text-amber-400 border-amber-500/30 text-sm tracking-wider";
+        iqProgress.classList.remove('hidden');
+        iqRoundVal.innerText = `${iqRound}/${IQ_MAX_ROUNDS}`;
+        iqProgressBar.style.width = `${((iqRound-1)/IQ_MAX_ROUNDS)*100}%`;
         generateRandomMap(10 + (iqRound * 2));
     } 
     else if (currentMode === 'FLUX' || currentMode === 'DELUXE') {
@@ -1265,13 +1459,13 @@ function analyzeMoveEfficiency(playedQ, playedR) {
 // --- GAMEPLAY ---
 
 function handleInput(q, r) {
-    if(isGameOver || grid[q][r]===1 || (q===target.q && r===target.r)) return;
+    if(isGameOver || inputLocked || grid[q][r]===1 || (q===target.q && r===target.r)) return;
 
     const now = Date.now();
     if (currentMode === 'IQ') {
         iqData.decisionTimeAccumulator += (now - lastMoveTime);
         const penalty = analyzeMoveEfficiency(q, r);
-        if (penalty > 0) iqData.optimalMovesMissed++;
+        iqData.optimalMovesMissed += penalty > 0 ? penalty : 0; 
     }
     lastMoveTime = now;
 
@@ -1284,6 +1478,9 @@ function handleInput(q, r) {
     animations.push({q, r, t:0, type:'pop'});
     moves++;
     moveEl.innerText = moves;
+
+    inputLocked = true;
+    setTimeout(() => { inputLocked = false; }, 200);
 
     if (currentMode === 'FLUX' || currentMode === 'DELUXE') {
         playerWalls.push({q, r});
@@ -1305,11 +1502,20 @@ function handleInput(q, r) {
         target.r = next.r;
         
         const p = hexToPixel(target.q, target.r);
-        for(let i=0; i<5; i++) particles.push({
-            x: target.x, y: target.y,
-            vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3,
-            life: 1, color: currentChar.glow
-        });
+        // Christmas Sparkles
+        if(currentMode === 'XMAS') {
+             for(let i=0; i<8; i++) particles.push({
+                x: target.x, y: target.y,
+                vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
+                life: 1, color: Math.random()>0.5 ? '#fbbf24' : (Math.random()>0.5 ? '#ef4444' : '#22c55e')
+            });
+        } else {
+            for(let i=0; i<5; i++) particles.push({
+                x: target.x, y: target.y,
+                vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3,
+                life: 1, color: currentChar.glow
+            });
+        }
 
         if(target.q===0 || target.q===BOARD_SIZE-1 || target.r===0 || target.r===BOARD_SIZE-1) {
             endGame(false);
@@ -1357,6 +1563,8 @@ function endGame(won) {
     else if (currentMode === 'IQ') {
         if (won) iqData.wins++;
         iqData.totalMoves += moves;
+        iqProgressBar.style.width = `${(iqRound/IQ_MAX_ROUNDS)*100}%`;
+        
         if (iqRound < IQ_MAX_ROUNDS) {
             showModal("ROUND COMPLETE", won ? "Target Secured." : "Target Escaped.", won ? "🏆" : "⚠️", "Next Round");
         } else {
@@ -1389,16 +1597,17 @@ function calculateAndShowIQ() {
             <span class="stat-val text-indigo-400">${avgTime.toFixed(2)}s</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Errors</span>
+            <span class="stat-label">Inefficiency</span>
             <span class="stat-val text-rose-400">${iqData.optimalMovesMissed}</span>
         </div>
         <div class="stat-item border-amber-500/30 bg-amber-500/10">
-            <span class="stat-label text-amber-500">Calculated IQ</span>
+            <span class="stat-label text-amber-500">Spatial IQ</span>
             <span class="stat-val text-amber-400 text-3xl">${iq}</span>
         </div>
     `;
     
-    showModal("ANALYSIS FINAL", "Performance evaluated.", "🧠", "Finish", html);
+    showModal("ANALYSIS COMPLETE", "Cognitive performance evaluated.", "🧠", "Finish", html);
+    modalDisclaimer.classList.remove('hidden'); 
 }
 
 function showModal(title, msg, icon, btnText, customHTML = null) {
@@ -1422,6 +1631,7 @@ function showModal(title, msg, icon, btnText, customHTML = null) {
         } else {
             modalTitle.style.color = "var(--text-main)";
             modalIconBg.classList.remove('iq-badge');
+            modalDisclaimer.classList.add('hidden');
         }
     }, 500);
 }
@@ -1439,7 +1649,7 @@ function handleModalClick() {
                 sidebar.classList.remove('collapsed');
             }
         } else {
-            resetGame(); // Retry
+            resetGame(); 
         }
     }
     else if (currentMode === 'IQ') {
@@ -1461,8 +1671,9 @@ function buildUI() {
     // Char Slider
     charGrid.innerHTML = '';
     CHARACTERS.forEach((c, i) => {
+        if(c.hidden) return; // SKIP HIDDEN CHARS
         const el = document.createElement('div');
-        el.className = `scroll-item ${i===0?'selected':''}`;
+        el.className = `scroll-item ${c === currentChar ? 'selected' : ''}`;
         el.innerHTML = `<div class="dot" style="background:${c.color};box-shadow:0 0 10px ${c.color}"></div>`;
         el.onclick = () => {
             currentChar = c;
@@ -1476,8 +1687,9 @@ function buildUI() {
     // Theme Slider
     themeGrid.innerHTML = '';
     THEMES.forEach((t, i) => {
+        if(t.hidden) return; // SKIP HIDDEN THEMES
         const el = document.createElement('div');
-        el.className = `scroll-item ${i===0?'selected':''}`;
+        el.className = `scroll-item ${t === currentTheme ? 'selected' : ''}`;
         el.innerHTML = `<div class="dot" style="background:${t.wall}"></div>`;
         el.onclick = () => {
             currentTheme = t;
@@ -1538,7 +1750,7 @@ function drawHexPath(x, y, r) {
 
 function drawLilyPad(x, y, r) {
     ctx.beginPath();
-    ctx.arc(x, y, r, 0.1 * Math.PI, 1.9 * Math.PI); // Pac-man shape
+    ctx.arc(x, y, r, 0.1 * Math.PI, 1.9 * Math.PI); 
     ctx.lineTo(x, y);
     ctx.closePath();
 }
@@ -1550,6 +1762,7 @@ function drawGrid() {
             const isWall = grid[q][r]===1;
             const isHover = !isWall && !isGameOver && q===mouse.q && r===mouse.r && (q!==target.q || r!==target.r);
             const isSwamp = currentTheme.name === 'Swamp';
+            const isXmas = currentTheme.name === 'North Pole';
             
             // Shape Selection
             if (isSwamp) {
@@ -1559,28 +1772,32 @@ function drawGrid() {
             }
             
             if (isWall) {
-                // Flux Decay Indicator
                 const isDecaying = (currentMode === 'FLUX' || currentMode === 'DELUXE') && playerWalls.length > 0 && playerWalls[0].q === q && playerWalls[0].r === r;
                 
-                const g = ctx.createLinearGradient(p.x-hexRadius, p.y-hexRadius, p.x+hexRadius, p.y+hexRadius);
-                if (isDecaying) {
-                    const time = Date.now() * 0.01;
-                    const rCol = Math.sin(time) > 0 ? '#fff' : '#22d3ee';
-                    g.addColorStop(0, rCol);
-                    g.addColorStop(1, '#000');
+                if (isXmas) {
+                    // ICE WALL
+                    ctx.fillStyle = 'rgba(186, 230, 253, 0.6)'; // Ice Blue
+                    ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)'; // Highlight
+                    ctx.beginPath(); ctx.arc(p.x-5, p.y-5, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth=1; ctx.stroke();
                 } else {
-                    g.addColorStop(0, currentTheme.wall);
-                    g.addColorStop(1, isLightMode ? '#cbd5e1' : '#000');
+                    const g = ctx.createLinearGradient(p.x-hexRadius, p.y-hexRadius, p.x+hexRadius, p.y+hexRadius);
+                    if (isDecaying) {
+                        const time = Date.now() * 0.01;
+                        const rCol = Math.sin(time) > 0 ? '#fff' : '#22d3ee';
+                        g.addColorStop(0, rCol);
+                        g.addColorStop(1, '#000');
+                    } else {
+                        g.addColorStop(0, currentTheme.wall);
+                        g.addColorStop(1, isLightMode ? '#cbd5e1' : '#000');
+                    }
+                    ctx.fillStyle = g; ctx.fill();
+                    ctx.strokeStyle = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)';
+                    ctx.lineWidth = 1; ctx.stroke();
+                    ctx.fillStyle = isLightMode ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+                    ctx.fill();
                 }
-                
-                ctx.fillStyle = g; ctx.fill();
-                
-                ctx.strokeStyle = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)';
-                ctx.lineWidth = 1; ctx.stroke();
-                
-                // Gloss
-                ctx.fillStyle = isLightMode ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
-                ctx.fill();
             } else {
                 if (isLightMode) {
                     ctx.fillStyle = isHover ? 'rgba(15, 23, 42, 0.1)' : 'rgba(255, 255, 255, 0.8)';
@@ -1609,7 +1826,6 @@ function drawGrid() {
 function drawAgent() {
     const c = currentChar;
     const r = hexRadius;
-    
     const dest = hexToPixel(target.q, target.r);
     const dx = dest.x - target.x;
     const dy = dest.y - target.y;
@@ -1619,9 +1835,8 @@ function drawAgent() {
     target.y += dy * 0.15;
     target.angle += 0.02; 
 
-    // Jump Physics
     let jumpY = 0;
-    if ((c.type === 'cat' || c.type === 'frog') && dist > 1.0) {
+    if ((c.type === 'cat' || c.type === 'frog' || c.type === 'santa') && dist > 1.0) {
         jumpY = -Math.abs(Math.sin(Date.now() * 0.02)) * Math.min(dist, 20);
     }
 
@@ -1634,67 +1849,87 @@ function drawAgent() {
     ctx.translate(target.x, target.y + jumpY);
     
     // DRAWING TYPES
-    if (c.type === 'frog') {
-        // FULL FROG DRAWING
-        const size = r * 0.7;
-        ctx.fillStyle = c.color;
+    if (c.type === 'santa') {
+        // SANTA SKIN
+        ctx.rotate(-target.angle);
+        const size = r * 0.8;
         
-        // Legs (Splayed for jumping)
-        ctx.beginPath(); ctx.ellipse(-size, size*0.5, size*0.4, size*0.2, -0.5, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(size, size*0.5, size*0.4, size*0.2, 0.5, 0, Math.PI*2); ctx.fill();
+        // Sack
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath(); ctx.arc(size*0.8 + (dx*0.1), size*0.2, size*0.5, 0, Math.PI*2); ctx.fill();
 
         // Body
-        ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.arc(0, size*0.2, size*0.7, 0, Math.PI*2); ctx.fill();
+        // White buttons
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, size*0.3, 2, 0, Math.PI*2); ctx.fill();
         
-        // Eyes (Bulging on top)
-        ctx.fillStyle = isLightMode ? '#fff' : '#000'; // Eye socket
+        // Beard
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath(); 
+        ctx.moveTo(-size*0.5, -size*0.2);
+        ctx.bezierCurveTo(-size*0.5, size*0.8, size*0.5, size*0.8, size*0.5, -size*0.2);
+        ctx.fill();
+        
+        // Face
+        ctx.fillStyle = '#fca5a5';
+        ctx.beginPath(); ctx.arc(0, -size*0.3, size*0.35, 0, Math.PI*2); ctx.fill();
+        
+        // Eyes
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(-4, -size*0.35, 1.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(4, -size*0.35, 1.5, 0, Math.PI*2); ctx.fill();
+        
+        // Hat
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(-size*0.5, -size*0.5);
+        ctx.quadraticCurveTo(0, -size*1.5, size*0.6, -size*0.5);
+        ctx.fill();
+        // Brim
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.ellipse(0, -size*0.55, size*0.5, size*0.15, 0, 0, Math.PI*2); ctx.fill();
+        
+        // Bobble (Physics)
+        const bobbleX = Math.sin(Date.now()*0.005) * 5 - (dx*0.2);
+        ctx.beginPath(); ctx.arc(bobbleX, -size*1.2, size*0.15, 0, Math.PI*2); ctx.fill();
+
+    } else if (c.type === 'frog') {
+        const size = r * 0.7;
+        ctx.fillStyle = c.color;
+        ctx.beginPath(); ctx.ellipse(-size, size*0.5, size*0.4, size*0.2, -0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(size, size*0.5, size*0.4, size*0.2, 0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = isLightMode ? '#fff' : '#000';
         ctx.beginPath(); ctx.arc(-size*0.4, -size*0.6, size*0.4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(size*0.4, -size*0.6, size*0.4, 0, Math.PI*2); ctx.fill();
-        
-        // Pupils
         ctx.fillStyle = isLightMode ? '#000' : '#fff';
         ctx.beginPath(); ctx.arc(-size*0.4, -size*0.6, size*0.15, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(size*0.4, -size*0.6, size*0.15, 0, Math.PI*2); ctx.fill();
 
     } else if (c.type === 'cat') {
-        // NEKO ANIMATION LOGIC
         ctx.rotate(-target.angle);
         const isMoving = dist > 1.0;
         const time = Date.now() * 0.015;
         const limbOffset = isMoving ? Math.sin(time * 1.5) * 4 : 0;
         const bodySize = r * 0.6;
-        
-        // Tail
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 4;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-bodySize*0.8, 0);
-        ctx.quadraticCurveTo(-bodySize*1.5, -bodySize + Math.sin(time)*10, -bodySize*1.2 + Math.cos(time)*5, -bodySize*0.8);
-        ctx.stroke();
-
-        // Body
-        ctx.fillStyle = c.color;
-        ctx.beginPath(); ctx.ellipse(0, 5, bodySize*1.1, bodySize*0.8, 0, 0, Math.PI*2); ctx.fill();
-        
-        // Legs
+        ctx.strokeStyle = c.color; ctx.lineWidth = 4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(-bodySize*0.8, 0); ctx.quadraticCurveTo(-bodySize*1.5, -bodySize + Math.sin(time)*10, -bodySize*1.2 + Math.cos(time)*5, -bodySize*0.8); ctx.stroke();
+        ctx.fillStyle = c.color; ctx.beginPath(); ctx.ellipse(0, 5, bodySize*1.1, bodySize*0.8, 0, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(-bodySize*0.5, bodySize*0.6 + limbOffset, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(bodySize*0.5, bodySize*0.6 - limbOffset, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(-bodySize*0.3, bodySize*0.7 - limbOffset, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(bodySize*0.3, bodySize*0.7 + limbOffset, 4, 0, Math.PI*2); ctx.fill();
-
-        // Head
         const headBob = isMoving ? Math.abs(Math.sin(time*2))*2 : 0;
         const headY = -bodySize*0.6 + headBob;
-        
         ctx.beginPath(); ctx.moveTo(-10, headY-10); ctx.lineTo(-15, headY-20); ctx.lineTo(-5, headY-15); ctx.fill();
         ctx.beginPath(); ctx.moveTo(10, headY-10); ctx.lineTo(15, headY-20); ctx.lineTo(5, headY-15); ctx.fill();
         ctx.beginPath(); ctx.arc(0, headY, bodySize*0.7, 0, Math.PI*2); ctx.fill();
-        
         ctx.fillStyle = isLightMode ? '#0f172a' : '#fff'; 
         ctx.beginPath(); ctx.arc(-5, headY-2, 3, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(5, headY-2, 3, 0, Math.PI*2); ctx.fill();
-        
         ctx.strokeStyle = isLightMode ? '#0f172a' : '#fff'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(-2, headY+2); ctx.lineTo(-12, headY+2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(2, headY+2); ctx.lineTo(12, headY+2); ctx.stroke();
@@ -1710,14 +1945,11 @@ function drawAgent() {
             const isMoving = dist > 1.0;
             const time = Date.now() * 0.015;
             const limbOffset = isMoving ? Math.sin(time) * 6 : 0;
-            
             ctx.fillStyle = c.color;
             ctx.beginPath(); ctx.arc(-8, 0 + limbOffset, 3, 0, Math.PI*2); ctx.fill(); 
             ctx.beginPath(); ctx.arc(8, 0 - limbOffset, 3, 0, Math.PI*2); ctx.fill(); 
-            
             ctx.fillStyle = isLightMode ? '#0f172a' : '#fff';
             ctx.beginPath(); ctx.arc(0, 0, r*0.35, 0, Math.PI*2); ctx.fill();
-            
             ctx.fillStyle = c.color;
             ctx.beginPath(); ctx.arc(r*0.25, 0, 3, 0, Math.PI*2); ctx.fill();
         } 
@@ -1742,34 +1974,35 @@ function drawAgent() {
 
 function drawFish() {
     if (currentTheme.name !== 'Swamp') return;
-    
     for (let f of fish) {
-        f.x += f.vx;
-        f.y += f.vy;
-        // Wrap around screen
-        if (f.x < 0) f.x = canvas.width;
-        if (f.x > canvas.width) f.x = 0;
-        if (f.y < 0) f.y = canvas.height;
-        if (f.y > canvas.height) f.y = 0;
-
+        f.x += f.vx; f.y += f.vy;
+        if (f.x < 0) f.x = canvas.width; if (f.x > canvas.width) f.x = 0;
+        if (f.y < 0) f.y = canvas.height; if (f.y > canvas.height) f.y = 0;
         ctx.save();
         ctx.translate(f.x, f.y);
         ctx.rotate(Math.atan2(f.vy, f.vx));
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'; // Faint green
-        
-        // Fish Shape
-        ctx.beginPath();
-        ctx.ellipse(0, 0, f.size, f.size*0.4, 0, 0, Math.PI*2);
-        ctx.fill();
-        
-        // Tail
-        ctx.beginPath();
-        ctx.moveTo(-f.size, 0);
-        ctx.lineTo(-f.size*1.5, -f.size*0.5);
-        ctx.lineTo(-f.size*1.5, f.size*0.5);
-        ctx.fill();
-        
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'; 
+        ctx.beginPath(); ctx.ellipse(0, 0, f.size, f.size*0.4, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-f.size, 0); ctx.lineTo(-f.size*1.5, -f.size*0.5); ctx.lineTo(-f.size*1.5, f.size*0.5); ctx.fill();
         ctx.restore();
+    }
+}
+
+function drawSnow() {
+    if (currentTheme.name !== 'North Pole') return;
+    for (let s of snow) {
+        // Wind effect
+        const wind = Math.sin(Date.now() * 0.001) * 0.5;
+        s.x += wind;
+        s.y += s.vy;
+        
+        // Wrap
+        if (s.y > canvas.height) s.y = 0;
+        if (s.x > canvas.width) s.x = 0;
+        if (s.x < 0) s.x = canvas.width;
+        
+        ctx.fillStyle = `rgba(255,255,255,${s.opacity})`;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
     }
 }
 
@@ -1824,7 +2057,8 @@ function loop() {
     requestAnimationFrame(loop);
     ctx.clearRect(0,0, canvas.width, canvas.height);
     
-    drawFish(); // Background layer
+    drawFish(); 
+    drawSnow(); 
     drawGrid();
     drawAnimations();
     drawParticles();
@@ -1836,4 +2070,3 @@ init();
 </script>
 </body>
 </html>
-
