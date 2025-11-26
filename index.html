@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hexaloop: V8.0</title>
+    <title>Hexaloop: V9.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
         :root {
             --bg-color: #020617;
@@ -144,6 +145,16 @@
         }
         .icon-btn:hover { opacity: 1; background: rgba(125, 125, 125, 0.2); }
         
+        .frog-btn {
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.2);
+            background: rgba(74, 222, 128, 0.1);
+        }
+        .frog-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
         .mode-btn {
             font-size: 0.7rem;
             font-weight: 800;
@@ -187,7 +198,7 @@
             transition: background 0.6s;
         }
 
-        /* --- SLIDERS --- */
+        /* --- SLIDERS (IMPROVED) --- */
         .slider-wrapper {
             position: relative;
             width: 100%;
@@ -466,6 +477,35 @@
             transform: translateY(20px);
         }
 
+        /* --- FROG INTRO OVERLAY --- */
+        #frog-intro {
+            position: fixed;
+            inset: 0;
+            background: #022c22;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        #frog-intro.active { opacity: 1; pointer-events: auto; }
+        
+        .frog-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 6rem;
+            color: #4ade80;
+            text-shadow: 0 10px 0 #166534, 0 20px 40px rgba(0,0,0,0.5);
+            transform: scale(0.5);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #frog-intro.active .frog-title {
+            transform: scale(1);
+            opacity: 1;
+        }
+
         /* --- MODAL --- */
         #modal {
             position: fixed;
@@ -551,6 +591,11 @@
         <div class="blob blob-2"></div>
     </div>
 
+    <!-- Frog Intro -->
+    <div id="frog-intro">
+        <h1 class="frog-title">FROG MODE</h1>
+    </div>
+
     <!-- Sidebar Menu (Fixed Layout) -->
     <aside id="sidebar" class="glass-panel collapsed">
         
@@ -559,6 +604,15 @@
             <div class="flex justify-between items-center">
                 <h1 class="text-3xl font-black tracking-tighter" style="color: var(--text-main);">HEXA<span class="text-indigo-500">LOOP</span></h1>
                 <div class="flex gap-2">
+                    <!-- Frog Mode Button -->
+                    <button id="frogBtn" class="icon-btn frog-btn" title="Frog Mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            <circle cx="9" cy="10" r="1.5"/>
+                            <circle cx="15" cy="10" r="1.5"/>
+                            <path d="M8 15s1.5 2 4 2 4-2 4-2"/>
+                        </svg>
+                    </button>
                     <!-- Theme Toggle -->
                     <button id="themeBtn" class="icon-btn" title="Toggle Day/Night">
                         <svg id="moonIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
@@ -655,7 +709,7 @@
             </div>
             <button id="startBtn" class="action-btn">Initialize</button>
             <p class="text-[10px] text-center mt-4 font-mono opacity-60" style="color: var(--text-muted);">
-                HEXALOOP V8.0 <span class="ml-2 opacity-50">| ARTIN</span>
+                HEXALOOP V9.0 <span class="ml-2 opacity-50">| ARTIN</span>
             </p>
         </div>
     </aside>
@@ -735,10 +789,10 @@
 
 <script>
 /**
- * HEXALOOP: ULTIMATE V8.0 "Neko Update"
- * - Full Body Cat Animation
- * - Floating Skip Button
- * - Rebrand & Watermarks
+ * HEXALOOP: ULTIMATE V9.0 "Amphibian Update"
+ * - Frog Limited Mode
+ * - Full Body Frog Animation
+ * - Swamp Theme & Fish System
  */
 
 const canvas = document.getElementById('gameCanvas');
@@ -748,6 +802,7 @@ const dpr = Math.min(window.devicePixelRatio || 1, 2);
 // UI Refs
 const sidebar = document.getElementById('sidebar');
 const themeBtn = document.getElementById('themeBtn');
+const frogBtn = document.getElementById('frogBtn'); // New Frog Button
 const moonIcon = document.getElementById('moonIcon');
 const sunIcon = document.getElementById('sunIcon');
 const charGrid = document.getElementById('char-grid');
@@ -768,6 +823,7 @@ const diffRange = document.getElementById('diff-range');
 const diffFill = document.getElementById('diff-fill');
 const diffThumb = document.getElementById('diff-thumb');
 const diffText = document.getElementById('diff-val-text');
+const frogIntro = document.getElementById('frog-intro');
 
 // Modal Refs
 const modal = document.getElementById('modal');
@@ -789,7 +845,8 @@ const modeBtns = {
 
 // --- CONFIG DATA ---
 const CHARACTERS = [
-    { name: 'Neko', color: '#fb7185', type: 'cat', glow: '#fda4af' }, // FULL BODY CAT
+    { name: 'Frog', color: '#4ade80', type: 'frog', glow: '#86efac' }, // NEW
+    { name: 'Neko', color: '#fb7185', type: 'cat', glow: '#fda4af' }, 
     { name: 'Neon', color: '#f43f5e', type: 'sphere', glow: '#fb7185' },
     { name: 'Runner', color: '#e2e8f0', type: 'human', glow: '#ffffff' }, 
     { name: 'Mentor', color: '#fbbf24', type: 'ring', glow: '#fcd34d' },
@@ -807,6 +864,7 @@ const CHARACTERS = [
 ];
 
 const THEMES = [
+    { name: 'Swamp', bg: '#064e3b', wall: '#10b981', grid: 'rgba(16, 185, 129, 0.2)' }, // NEW
     { name: 'Midnight', bg: '#020617', wall: '#3b82f6', grid: 'rgba(59, 130, 246, 0.15)' },
     { name: 'Amber', bg: '#271a0c', wall: '#f59e0b', grid: 'rgba(245, 158, 11, 0.15)' },
     { name: 'Matrix', bg: '#022c22', wall: '#10b981', grid: 'rgba(16, 185, 129, 0.15)' },
@@ -819,46 +877,11 @@ const THEMES = [
 
 // --- COACHING LEVELS ---
 const COACH_LEVELS = [
-    {
-        title: "BASICS",
-        msg: "The agent wants to escape. I've built most of the wall. Close the gap to contain it.",
-        hint: "Look for the break in the wall structure. Only one tile completes the cage.",
-        setup: (g) => {
-            [ {q:4,r:5}, {q:4,r:6}, {q:5,r:6}, {q:6,r:5} ].forEach(p => g[p.q][p.r] = 1);
-        }
-    },
-    {
-        title: "THE WIDE NET",
-        msg: "If you build too close, the agent will slip past. Try building a wall 2-3 tiles away from the agent.",
-        hint: "Don't touch the agent directly. Click further out to form a large circle.",
-        setup: (g) => {
-            [ {q:3,r:3}, {q:7,r:3}, {q:3,r:7}, {q:7,r:7} ].forEach(p => g[p.q][p.r] = 1);
-        }
-    },
-    {
-        title: "THE WALL",
-        msg: "Don't leave gaps. A solid line of defense is harder to penetrate than scattered blocks.",
-        hint: "Connect existing blocks to form a continuous barrier.",
-        setup: (g) => {
-            [ {q:2,r:2}, {q:2,r:3}, {q:2,r:4}, {q:2,r:6}, {q:2,r:7} ].forEach(p => g[p.q][p.r] = 1);
-        }
-    },
-    {
-        title: "THE PINCH",
-        msg: "Force the agent into a corner. When it has few options, close the trap.",
-        hint: "The agent is heading to the bottom right. Seal that exit first.",
-        setup: (g) => {
-            [ {q:4,r:4}, {q:5,r:3}, {q:6,r:4}, {q:5,r:6} ].forEach(p => g[p.q][p.r] = 1);
-        }
-    },
-    {
-        title: "EDGE GUARD",
-        msg: "The edge is dangerous. If the agent reaches the border, you lose. Prioritize blocking the edge path!",
-        hint: "Ignore the center. Build a wall between the agent and the closest map edge.",
-        setup: (g) => {
-            target.q = 1; target.r = 5; 
-        }
-    }
+    { title: "BASICS", msg: "The agent wants to escape. I've built most of the wall. Close the gap to contain it.", hint: "Look for the break in the wall structure. Only one tile completes the cage.", setup: (g) => { [ {q:4,r:5}, {q:4,r:6}, {q:5,r:6}, {q:6,r:5} ].forEach(p => g[p.q][p.r] = 1); } },
+    { title: "THE WIDE NET", msg: "If you build too close, the agent will slip past. Try building a wall 2-3 tiles away from the agent.", hint: "Don't touch the agent directly. Click further out to form a large circle.", setup: (g) => { [ {q:3,r:3}, {q:7,r:3}, {q:3,r:7}, {q:7,r:7} ].forEach(p => g[p.q][p.r] = 1); } },
+    { title: "THE WALL", msg: "Don't leave gaps. A solid line of defense is harder to penetrate than scattered blocks.", hint: "Connect existing blocks to form a continuous barrier.", setup: (g) => { [ {q:2,r:2}, {q:2,r:3}, {q:2,r:4}, {q:2,r:6}, {q:2,r:7} ].forEach(p => g[p.q][p.r] = 1); } },
+    { title: "THE PINCH", msg: "Force the agent into a corner. When it has few options, close the trap.", hint: "The agent is heading to the bottom right. Seal that exit first.", setup: (g) => { [ {q:4,r:4}, {q:5,r:3}, {q:6,r:4}, {q:5,r:6} ].forEach(p => g[p.q][p.r] = 1); } },
+    { title: "EDGE GUARD", msg: "The edge is dangerous. If the agent reaches the border, you lose. Prioritize blocking the edge path!", hint: "Ignore the center. Build a wall between the agent and the closest map edge.", setup: (g) => { target.q = 1; target.r = 5; } }
 ];
 
 // --- GAME STATE ---
@@ -867,19 +890,20 @@ let grid = [];
 let target = { q: 5, r: 5, x: 0, y: 0, angle: 0 };
 let animations = [];
 let particles = [];
+let fish = []; // New Fish Array
 let mouse = { q: -1, r: -1 };
 let view = { w: 0, h: 0, cx: 0, cy: 0 };
 let hexRadius = 25;
 
 // Game Logic Variables
-let currentChar = CHARACTERS[0];
-let currentTheme = THEMES[0];
+let currentChar = CHARACTERS[1]; // Default to Neko
+let currentTheme = THEMES[1]; // Default to Midnight
 let currentMode = 'NORMAL'; 
 let isGameOver = false;
 let moves = 0;
 let lastMoveTime = 0;
 let isLightMode = false;
-let difficulty = 50; // 0-100
+let difficulty = 50;
 
 // FLUX & DELUXE
 let fluxLimit = 6; 
@@ -900,6 +924,9 @@ let skipUsed = false;
 function init() {
     grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
     
+    // Init Fish
+    for(let i=0; i<5; i++) spawnFish();
+
     if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
         toggleTheme(true);
     }
@@ -918,6 +945,12 @@ function init() {
     restartBtn.onclick = handleModalClick;
     themeBtn.onclick = () => toggleTheme(!isLightMode);
     
+    // Frog Mode Trigger
+    frogBtn.onclick = () => {
+        sidebar.classList.add('collapsed');
+        setMode('FROG');
+    };
+
     // Difficulty Slider
     diffRange.addEventListener('input', (e) => {
         difficulty = parseInt(e.target.value);
@@ -995,7 +1028,7 @@ function toggleTheme(light) {
         document.documentElement.setAttribute('data-theme', 'dark');
         moonIcon.classList.add('hidden');
         sunIcon.classList.remove('hidden');
-        if(currentTheme.name === 'Graphite') currentTheme = THEMES[0];
+        if(currentTheme.name === 'Graphite') currentTheme = THEMES[1];
     }
     buildUI();
 }
@@ -1004,14 +1037,25 @@ function setMode(mode) {
     currentMode = mode;
     Object.values(modeBtns).forEach(b => b.classList.remove('active-mode'));
     
-    // UI Visibility based on mode
+    // Default UI reset
+    diffPanel.classList.remove('active');
+    statusPill.classList.remove('hidden');
+    
     if (mode === 'NORMAL') {
         diffPanel.classList.add('active');
         modeBtns.normal.classList.add('active-mode');
         modeDesc.innerText = "Standard protocol. Adjust complexity via slider.";
         modeDesc.style.borderColor = "#94a3b8";
+    } else if (mode === 'FROG') {
+        // Frog Mode special reset
+        frogIntro.classList.add('active');
+        setTimeout(() => frogIntro.classList.remove('active'), 2500);
+        // Force assets
+        currentChar = CHARACTERS[0]; // Frog
+        currentTheme = THEMES[0]; // Swamp
+        document.body.style.backgroundColor = currentTheme.bg;
+        resetGame();
     } else {
-        diffPanel.classList.remove('active');
         if (mode === 'IQ') {
             modeBtns.iq.classList.add('active-mode');
             modeDesc.innerText = "5-Round Analysis. Tracks speed & logic.";
@@ -1032,16 +1076,23 @@ function setMode(mode) {
     }
 }
 
-// Calculate wall limit based on free space "Entropy"
 function calculateFluxLimit(gridState) {
     let walls = 0;
     for(let q=0; q<BOARD_SIZE; q++) {
-        for(let r=0; r<BOARD_SIZE; r++) {
-            if(gridState[q][r] === 1) walls++;
-        }
+        for(let r=0; r<BOARD_SIZE; r++) { if(gridState[q][r] === 1) walls++; }
     }
-    const limit = Math.max(4, 14 - Math.floor(walls * 0.6));
-    return limit;
+    return Math.max(4, 14 - Math.floor(walls * 0.6));
+}
+
+function spawnFish() {
+    fish.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        angle: 0,
+        size: 5 + Math.random() * 5
+    });
 }
 
 function resetGame() {
@@ -1054,7 +1105,6 @@ function resetGame() {
     moveEl.innerText = '0';
     lastMoveTime = Date.now();
 
-    // UI Resets
     fluxPill.classList.add('hidden');
     coachPanel.classList.remove('active');
     skipBtn.classList.add('hidden'); 
@@ -1063,7 +1113,12 @@ function resetGame() {
     statusPill.innerText = "ACTIVE";
 
     // Mode Init
-    if (currentMode === 'COACH') {
+    if (currentMode === 'FROG') {
+        statusPill.innerText = "FROG MODE";
+        statusPill.className = "hud-pill text-green-400 border-green-500/30 text-sm tracking-wider";
+        generateRandomMap(12);
+    }
+    else if (currentMode === 'COACH') {
         statusPill.innerText = `LESSON ${coachLevel+1}`;
         statusPill.className = "hud-pill text-yellow-400 border-yellow-500/30 text-sm tracking-wider";
         coachPanel.classList.add('active');
@@ -1072,11 +1127,10 @@ function resetGame() {
         const level = COACH_LEVELS[coachLevel];
         coachMsg.innerText = level.msg;
         level.setup(grid); 
-        coachLosses = 0; // Reset losses for this level
+        coachLosses = 0; 
         
         if (!skipUsed) {
             skipBtn.classList.remove('hidden');
-            // Update text
             skipBtn.innerHTML = `<span>Skip Lesson</span><span class="text-xs opacity-70">(1 left)</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
         }
     }
@@ -1094,19 +1148,14 @@ function resetGame() {
         
         fluxPill.classList.remove('hidden');
         generateRandomMap(currentMode === 'FLUX' ? 8 : 6);
-        
-        // Dynamic Limit Calc
         fluxLimit = currentMode === 'DELUXE' ? 5 : calculateFluxLimit(grid);
         updateFluxUI();
     } else {
-        // Normal Mode with Difficulty Scaling
-        // Beginner (0) -> ~20 walls. Impossible (100) -> ~2 walls.
-        // Map 0-100 to 20-2.
+        // Normal
         const wallCount = Math.floor(20 - (difficulty / 100 * 18));
         generateRandomMap(wallCount);
     }
 
-    // Sync visual pos
     const p = hexToPixel(target.q, target.r);
     target.x = p.x;
     target.y = p.y;
@@ -1225,7 +1274,6 @@ function handleInput(q, r) {
         target.q = next.q;
         target.r = next.r;
         
-        // Visual Particle Trail
         const p = hexToPixel(target.q, target.r);
         for(let i=0; i<5; i++) particles.push({
             x: target.x, y: target.y,
@@ -1268,7 +1316,7 @@ function endGame(won) {
             coachLosses++;
             if (coachLosses >= 3) {
                 const level = COACH_LEVELS[coachLevel];
-                coachMsg.innerText = `Advice: ${level.hint}`; // Hint Trigger
+                coachMsg.innerText = `Advice: ${level.hint}`;
                 showModal("LESSON FAILED", "Hint Available.", "💡", "Retry");
             } else {
                 coachMsg.innerText = "Failure. The agent escaped. Re-assess your strategy.";
@@ -1458,14 +1506,27 @@ function drawHexPath(x, y, r) {
     ctx.closePath();
 }
 
+function drawLilyPad(x, y, r) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0.1 * Math.PI, 1.9 * Math.PI); // Pac-man shape
+    ctx.lineTo(x, y);
+    ctx.closePath();
+}
+
 function drawGrid() {
     for(let q=0; q<BOARD_SIZE; q++) {
         for(let r=0; r<BOARD_SIZE; r++) {
             const p = hexToPixel(q, r);
             const isWall = grid[q][r]===1;
             const isHover = !isWall && !isGameOver && q===mouse.q && r===mouse.r && (q!==target.q || r!==target.r);
+            const isSwamp = currentTheme.name === 'Swamp';
             
-            drawHexPath(p.x, p.y, hexRadius-2);
+            // Shape Selection
+            if (isSwamp) {
+                drawLilyPad(p.x, p.y, hexRadius-2);
+            } else {
+                drawHexPath(p.x, p.y, hexRadius-2);
+            }
             
             if (isWall) {
                 // Flux Decay Indicator
@@ -1473,7 +1534,6 @@ function drawGrid() {
                 
                 const g = ctx.createLinearGradient(p.x-hexRadius, p.y-hexRadius, p.x+hexRadius, p.y+hexRadius);
                 if (isDecaying) {
-                    // Critical Decay Color (Glitchy White/Cyan)
                     const time = Date.now() * 0.01;
                     const rCol = Math.sin(time) > 0 ? '#fff' : '#22d3ee';
                     g.addColorStop(0, rCol);
@@ -1507,7 +1567,7 @@ function drawGrid() {
         }
     }
     
-    // Watermark on Canvas
+    // Watermark
     ctx.save();
     ctx.fillStyle = isLightMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)';
     ctx.font = '10px JetBrains Mono';
@@ -1520,25 +1580,21 @@ function drawAgent() {
     const c = currentChar;
     const r = hexRadius;
     
-    // Update Physics for Smooth Move & Animation
     const dest = hexToPixel(target.q, target.r);
     const dx = dest.x - target.x;
     const dy = dest.y - target.y;
     const dist = Math.hypot(dx, dy);
     
-    // Physics Update
     target.x += dx * 0.15;
     target.y += dy * 0.15;
-    target.angle += 0.02; // Idle Spin
+    target.angle += 0.02; 
 
-    // Jump Physics for Neko
+    // Jump Physics
     let jumpY = 0;
-    if (c.type === 'cat' && dist > 1.0) {
-        // Simple Jump Arc based on distance remaining
+    if ((c.type === 'cat' || c.type === 'frog') && dist > 1.0) {
         jumpY = -Math.abs(Math.sin(Date.now() * 0.02)) * Math.min(dist, 20);
     }
 
-    // Glow
     const g = ctx.createRadialGradient(target.x, target.y, r*0.5, target.x, target.y, r*2);
     g.addColorStop(0, c.glow+'66'); g.addColorStop(1, '#0000');
     ctx.fillStyle = g; 
@@ -1547,17 +1603,35 @@ function drawAgent() {
     ctx.save(); 
     ctx.translate(target.x, target.y + jumpY);
     
-    // Render Character Type
-    if (c.type === 'cat') {
-        // NEKO ANIMATION LOGIC (Full Body)
-        // Use negative angle so head doesn't spin weirdly
-        ctx.rotate(-target.angle);
+    // DRAWING TYPES
+    if (c.type === 'frog') {
+        // FULL FROG DRAWING
+        const size = r * 0.7;
+        ctx.fillStyle = c.color;
         
+        // Legs (Splayed for jumping)
+        ctx.beginPath(); ctx.ellipse(-size, size*0.5, size*0.4, size*0.2, -0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(size, size*0.5, size*0.4, size*0.2, 0.5, 0, Math.PI*2); ctx.fill();
+
+        // Body
+        ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI*2); ctx.fill();
+        
+        // Eyes (Bulging on top)
+        ctx.fillStyle = isLightMode ? '#fff' : '#000'; // Eye socket
+        ctx.beginPath(); ctx.arc(-size*0.4, -size*0.6, size*0.4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(size*0.4, -size*0.6, size*0.4, 0, Math.PI*2); ctx.fill();
+        
+        // Pupils
+        ctx.fillStyle = isLightMode ? '#000' : '#fff';
+        ctx.beginPath(); ctx.arc(-size*0.4, -size*0.6, size*0.15, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(size*0.4, -size*0.6, size*0.15, 0, Math.PI*2); ctx.fill();
+
+    } else if (c.type === 'cat') {
+        // NEKO ANIMATION LOGIC
+        ctx.rotate(-target.angle);
         const isMoving = dist > 1.0;
         const time = Date.now() * 0.015;
         const limbOffset = isMoving ? Math.sin(time * 1.5) * 4 : 0;
-        const tailSway = Math.sin(time) * 0.3;
-        
         const bodySize = r * 0.6;
         
         // Tail
@@ -1566,56 +1640,36 @@ function drawAgent() {
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(-bodySize*0.8, 0);
-        // Quadratic curve for swaying tail
         ctx.quadraticCurveTo(-bodySize*1.5, -bodySize + Math.sin(time)*10, -bodySize*1.2 + Math.cos(time)*5, -bodySize*0.8);
         ctx.stroke();
 
         // Body
         ctx.fillStyle = c.color;
-        ctx.beginPath();
-        ctx.ellipse(0, 5, bodySize*1.1, bodySize*0.8, 0, 0, Math.PI*2);
-        ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 5, bodySize*1.1, bodySize*0.8, 0, 0, Math.PI*2); ctx.fill();
         
-        // Legs (4 legs)
-        // Front Left
+        // Legs
         ctx.beginPath(); ctx.arc(-bodySize*0.5, bodySize*0.6 + limbOffset, 4, 0, Math.PI*2); ctx.fill();
-        // Front Right
         ctx.beginPath(); ctx.arc(bodySize*0.5, bodySize*0.6 - limbOffset, 4, 0, Math.PI*2); ctx.fill();
-        // Back Left
         ctx.beginPath(); ctx.arc(-bodySize*0.3, bodySize*0.7 - limbOffset, 4, 0, Math.PI*2); ctx.fill();
-        // Back Right
         ctx.beginPath(); ctx.arc(bodySize*0.3, bodySize*0.7 + limbOffset, 4, 0, Math.PI*2); ctx.fill();
 
-        // Head (bobbing)
+        // Head
         const headBob = isMoving ? Math.abs(Math.sin(time*2))*2 : 0;
         const headY = -bodySize*0.6 + headBob;
         
-        // Ears
-        ctx.beginPath();
-        ctx.moveTo(-10, headY - 10); ctx.lineTo(-15, headY - 20); ctx.lineTo(-5, headY - 15); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(10, headY - 10); ctx.lineTo(15, headY - 20); ctx.lineTo(5, headY - 15); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-10, headY-10); ctx.lineTo(-15, headY-20); ctx.lineTo(-5, headY-15); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(10, headY-10); ctx.lineTo(15, headY-20); ctx.lineTo(5, headY-15); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, headY, bodySize*0.7, 0, Math.PI*2); ctx.fill();
         
-        // Face Circle
-        ctx.beginPath();
-        ctx.arc(0, headY, bodySize*0.7, 0, Math.PI*2);
-        ctx.fill();
-        
-        // Eyes
         ctx.fillStyle = isLightMode ? '#0f172a' : '#fff'; 
-        ctx.beginPath(); ctx.arc(-5, headY - 2, 3, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(5, headY - 2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-5, headY-2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(5, headY-2, 3, 0, Math.PI*2); ctx.fill();
         
-        // Whiskers
-        ctx.strokeStyle = isLightMode ? '#0f172a' : '#fff'; 
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = isLightMode ? '#0f172a' : '#fff'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(-2, headY+2); ctx.lineTo(-12, headY+2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-2, headY+4); ctx.lineTo(-10, headY+6); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(2, headY+2); ctx.lineTo(12, headY+2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(2, headY+4); ctx.lineTo(10, headY+6); ctx.stroke();
 
     } else {
-        // Other Shapes
         ctx.rotate(target.angle);
         ctx.fillStyle = isLightMode ? '#0f172a' : '#fff'; 
         ctx.strokeStyle = c.color; 
@@ -1654,6 +1708,39 @@ function drawAgent() {
         }
     }
     ctx.restore();
+}
+
+function drawFish() {
+    if (currentTheme.name !== 'Swamp') return;
+    
+    for (let f of fish) {
+        f.x += f.vx;
+        f.y += f.vy;
+        // Wrap around screen
+        if (f.x < 0) f.x = canvas.width;
+        if (f.x > canvas.width) f.x = 0;
+        if (f.y < 0) f.y = canvas.height;
+        if (f.y > canvas.height) f.y = 0;
+
+        ctx.save();
+        ctx.translate(f.x, f.y);
+        ctx.rotate(Math.atan2(f.vy, f.vx));
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)'; // Faint green
+        
+        // Fish Shape
+        ctx.beginPath();
+        ctx.ellipse(0, 0, f.size, f.size*0.4, 0, 0, Math.PI*2);
+        ctx.fill();
+        
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(-f.size, 0);
+        ctx.lineTo(-f.size*1.5, -f.size*0.5);
+        ctx.lineTo(-f.size*1.5, f.size*0.5);
+        ctx.fill();
+        
+        ctx.restore();
+    }
 }
 
 function drawParticles() {
@@ -1707,6 +1794,7 @@ function loop() {
     requestAnimationFrame(loop);
     ctx.clearRect(0,0, canvas.width, canvas.height);
     
+    drawFish(); // Background layer
     drawGrid();
     drawAnimations();
     drawParticles();
